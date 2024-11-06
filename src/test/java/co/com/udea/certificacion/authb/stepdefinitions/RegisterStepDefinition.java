@@ -61,7 +61,6 @@ public class RegisterStepDefinition {
 
     }
 
-    @SuppressWarnings("unused")
     @After
     public void cleanUp() {
         if (registeredUsername != null) {
