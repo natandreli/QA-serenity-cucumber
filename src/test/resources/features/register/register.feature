@@ -1,4 +1,7 @@
 Feature: Registration
+  # As a new user,
+  # I want to be able to register with all required details
+  # so that I can access the services and functionality of the application.
 
   Background:
     Given I am connected to capacities of the service
