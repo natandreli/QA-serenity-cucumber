@@ -12,17 +12,17 @@ import static net.serenitybdd.screenplay.Tasks.instrumented;
 
 import java.util.Map;
 
-public class LoginAsUser implements Task {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginAsUser.class);
+public class Login implements Task {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
     private final Map<String, String> credentials;
     private String authToken;
 
-    public LoginAsUser(Map<String, String> credentials) {
+    public Login(Map<String, String> credentials) {
         this.credentials = credentials;
     }
 
-    public static LoginAsUser withCredentials(Map<String, String> credentials) {
-        return instrumented(LoginAsUser.class, credentials);
+    public static Login withCredentials(Map<String, String> credentials) {
+        return instrumented(Login.class, credentials);
     }
 
     @Override

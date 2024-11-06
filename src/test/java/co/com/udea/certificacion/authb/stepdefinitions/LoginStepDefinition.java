@@ -1,9 +1,10 @@
 package co.com.udea.certificacion.authb.stepdefinitions;
 
 import co.com.udea.certificacion.authb.tasks.ConnectTo;
-import co.com.udea.certificacion.authb.tasks.PostTo;
+import co.com.udea.certificacion.authb.tasks.Login;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static net.serenitybdd.screenplay.rest.questions.ResponseConsequence.seeThatResponse;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 import java.util.List;
 import java.util.Map;
@@ -37,11 +39,9 @@ public class LoginStepDefinition {
     public void iSubmitTheLoginData(DataTable dataTable) {
         List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
         Map<String, String> userData = data.get(0);
-        String username = data.get(0).get("username");
+        String username = userData.get("username");
 
-        user.attemptsTo(
-                PostTo.service("/users/v1/login", userData)
-        );
+        user.attemptsTo(Login.withCredentials(userData));
 
         LOGGER.info("Login request sent for username: {}", username);
     }
@@ -57,6 +57,18 @@ public class LoginStepDefinition {
         );
 
         LOGGER.info("Received {} status code with successful login message", statusCode);
+    }
+
+    @And("I should receive an auth token")
+    public void iShouldReceiveAnAuthToken() {
+        user.should(
+                seeThatResponse("The user should see a successful login status",
+                        response -> response.body("auth_token", notNullValue())
+                )
+        );
+
+        String authToken = user.recall("authToken");
+        LOGGER.info("Received auth token: {}", authToken);
     }
 
     @Then("I should receive a {int} status code with invalid credentials message")

@@ -9,6 +9,7 @@ Feature: Login
       | username       | password           |
       | name1          | pass1              |
     Then I should receive a 200 status code with successful login message
+    And I should receive an auth token
 
   @RegressionTest
   Scenario: Login with incorrect password
