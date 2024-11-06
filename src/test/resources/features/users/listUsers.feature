@@ -11,6 +11,3 @@ Feature: List users
       | mail1@mail.com            | name1          |
       | mail2@mail.com            | name2          |
       | admin@mail.com            | admin          |
-      | usuarioprueba1@correo.com | usuarioprueba1 |
-      | usuario3@correo.com       | usuarioprueba3 |
-      | usuario2@correo.com       | usuarioprueba2 |
