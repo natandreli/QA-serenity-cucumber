@@ -1,4 +1,4 @@
-package starter;
+package co.com.udea.certificacion.authb;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.IncludeEngines;
