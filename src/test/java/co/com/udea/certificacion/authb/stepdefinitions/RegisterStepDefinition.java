@@ -16,7 +16,6 @@ import net.serenitybdd.screenplay.actors.OnlineCast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static net.serenitybdd.screenplay.rest.questions.ResponseConsequence.seeThatResponse;
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.util.List;
@@ -38,8 +37,8 @@ public class RegisterStepDefinition {
         user.attemptsTo(ConnectTo.theService());
     }
 
-    @When("I enter the correct user data:")
-    public void iEnterTheCorrectUserData(DataTable dataTable) {
+    @When("I enter the following correct user data for registration")
+    public void iEnterTheFollowingCorrectUserDataForRegistration(DataTable dataTable) {
         List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
         Map<String, String> userData = data.get(0);
         registeredUsername = userData.get("username");
@@ -48,6 +47,18 @@ public class RegisterStepDefinition {
                 PostTo.service("/users/v1/register", userData)
         );
     }
+
+    @When("I enter the following user data for registration")
+    public void iEnterTheFollowingUserDataForRegistration(DataTable dataTable) {
+        List<Map<String, String>> data = dataTable.asMaps(String.class, String.class);
+        Map<String, String> userData = data.get(0);
+        registeredUsername = userData.get("username");
+
+        user.attemptsTo(
+                PostTo.service("/users/v1/register", userData)
+        );
+    }
+
 
     @Then("I can see a 200 status code with successful registration message")
     public void iCanSeeA200StatusCodeWithSuccessfulRegistrationMessage() {
@@ -61,17 +72,78 @@ public class RegisterStepDefinition {
 
     }
 
+    @When("I attempt to register with the same user data again")
+    public void iAttemptToRegisterWithTheSameUserDataAgain() {
+        Map<String, String> duplicateUserData = Map.of(
+                "email", "usuario2@correo.com",
+                "password", "micontraseñaSEGURA!2035",
+                "username", registeredUsername
+        );
+
+        user.attemptsTo(
+                PostTo.service("/users/v1/register", duplicateUserData)
+        );
+    }
+
+    @Then("I see a 409 status code with a message about username already taken")
+    public void iSeeA409StatusCodeWithAMessageAboutUsernameAlreadyTaken() {
+        user.should(
+                seeThatResponse("Username already taken response",
+                        response -> response
+                                .statusCode(409)
+                                .body("message", equalTo("Username already taken"))
+                )
+        );
+    }
+
+    @Then("I see a 400 status code with a message about weak password")
+    public void iSeeA400StatusCodeWithAMessageAboutWeakPassword() {
+        user.should(
+                seeThatResponse("Weak password response",
+                        response -> response
+                                .statusCode(400)
+                                .body("message", equalTo("Password does not meet security requirements"))
+                )
+        );
+    }
+
+    @When("I attempt to register with the same email again")
+    public void iAttemptToRegisterWithTheSameEmailAgain() {
+        Map<String, String> duplicateEmailData = Map.of(
+                "email", "usuario1@correo.com",
+                "password", "micontraseñaSEGURA!2035",
+                "username", "usuarioprueba1"
+        );
+
+        user.attemptsTo(
+                PostTo.service("/users/v1/register", duplicateEmailData)
+        );
+    }
+
+    @Then("I see a 409 status code with a message about email already taken")
+    public void iSeeA409StatusCodeWithAMessageAboutEmailAlreadyTaken() {
+        user.should(
+                seeThatResponse("Email already taken response",
+                        response -> response
+                                .statusCode(409)
+                                .body("message", equalTo("Email already taken"))
+                )
+        );
+    }
+
     @After
     public void cleanUp() {
         if (registeredUsername != null) {
-            user.attemptsTo(
-                    LoginAsAdmin.withCredentials(Map.of(
-                            "username", "admin1",
-                            "password", "admin1"
-                    )),
-                    DeleteUser.withUsername("usuarioprueba1")
-            );
-            LOGGER.info("User {} deleted after test.", registeredUsername);
+            new Thread(() -> {
+                    user.attemptsTo(
+                            LoginAsAdmin.withCredentials(Map.of(
+                                    "username", "admin1",
+                                    "password", "admin1"
+                            )),
+                            DeleteUser.withUsername(registeredUsername)
+                    );
+                    LOGGER.info("User {} deleted after test.", registeredUsername);
+            }).start();
         }
     }
 
