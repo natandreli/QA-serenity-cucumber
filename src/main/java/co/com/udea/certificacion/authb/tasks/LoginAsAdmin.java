@@ -40,6 +40,6 @@ public class LoginAsAdmin implements Task {
         authToken = SerenityRest.lastResponse().jsonPath().getString("auth_token");
         LOGGER.info("Admin Auth Token: {}", authToken);
 
-        actor.remember("authToken", authToken); // Guardar el token en el actor para usarlo después
+        actor.remember("authToken", authToken);
     }
 }
